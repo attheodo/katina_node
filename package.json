@@ -1,0 +1,17 @@
+{
+  "author": "Athanasios \"attheodo\" Theodoridis <at@atworks.gr> (http://attheo.do)",
+  "name": "katina",
+  "description": "Apple App Store Review scraper for Node.js",
+  "version": "0.0.1",
+  "homepage": "http://github.com/attheodo/katina_node",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/attheodo/katina_node.git"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}
