@@ -4,7 +4,7 @@ var   http = require('http'),
 		parser = require('xml2json');
 
 
-
+var app_reviews = [];
 
 APPSTORE_CODES = {
 	'Argentina':          143505,
@@ -94,7 +94,7 @@ var scrapeReviews = function(app_id, country_id, page_num) {
 	var x_store_front = country_id + '-1';
 	var request_headers = {
 				 
-				 'User-Agent': 'iTunes/10.5 (Macintosh; U; Mac OS X 10.6)',
+		'User-Agent': 'iTunes/10.5 (Macintosh; U; Mac OS X 10.6)',
 		'X-Apple-Store-Front': x_store_front
 
 	};
@@ -111,6 +111,7 @@ var scrapeReviews = function(app_id, country_id, page_num) {
 
 	};
 
+	// make the request
 	var req = http.request(request_options, 
 		
 		// response callback
@@ -134,6 +135,7 @@ var scrapeReviews = function(app_id, country_id, page_num) {
 			res.on('end',
 				function(){ 
 					parseReviews(reviews); 
+
 				}
 			);
 
@@ -151,9 +153,79 @@ var parseReviews = function(reviews){
 	
 	fs.readFile(__dirname + '/reviews.xml', function(err, data) {
     
-    	var json = parser.toJson(data,{object: true});
+    	var reviews_data = parser.toJson(data,{object: true});
 
-    	console.dir(JSON.stringify(json['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']['VBoxView'][0]['VBoxView']['VBoxView'][2]));
+    	var num_of_reviews = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']['VBoxView'][0]['VBoxView']['VBoxView'].length;
+
+    	for(var i=0; i < num_of_reviews; i+=1){
+
+	    	var review = {};
+
+	    	// author
+	    	try {
+	    	
+	    		var review_author = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']['VBoxView'][0]['VBoxView']['VBoxView'][i]['HBoxView'][1]['TextView']['SetFontStyle']['GotoURL']['b']; 
+	    		review['author'] = review_author;
+
+	    	} 
+	    	catch(err){
+
+	    		review['author'] = undefined;
+	    	
+	    	}
+
+	    	
+	    	// review body
+	    	try {
+	    	
+	    		var review_body = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']['VBoxView'][0]['VBoxView']['VBoxView'][i]['TextView']['SetFontStyle']['$t'];
+	    		review['review'] = review_body;
+
+	    	} catch(err) {
+				
+				review['review'] = undefined;
+	    	
+	    	}
+	    	
+			// application version
+			try {
+
+	    		var review_appVersion = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']['VBoxView'][0]['VBoxView']['VBoxView'][i]['HBoxView'][1]['TextView']['SetFontStyle']['$t'];
+	    		review['version'] = review_appVersion;
+
+	    	} catch (err) {
+
+	    		review['version'] = undefined;
+	    	
+	    	}
+	    	
+
+	    	// review title
+	    	try {
+
+	    		var review_title = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']['VBoxView'][0]['VBoxView']['VBoxView'][i]['HBoxView'][0]['TextView']['SetFontStyle']['b'];
+				review['title'] = review_title;
+
+			} catch (err) {
+				review['title'] = undefined;
+			}
+
+	    	
+			// review rating
+			try {
+
+				var review_rating = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']['VBoxView'][0]['VBoxView']['VBoxView'][i]['HBoxView'][0]['HBoxView']['HBoxView'][0]['alt'];
+				review['rating'] = review_rating;				
+
+			} catch (err) {
+
+				review['rating'] = undefined;
+			
+			}
+
+	    	console.dir(review);
+    	}
+    	
 
     });
 }
