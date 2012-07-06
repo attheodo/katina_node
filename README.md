@@ -3,6 +3,8 @@
 Node module for scraping app reviews from the App Store
 
 ## Installation
+Katina is available via the npm packet manager. 
+In order to install katina as a module, open your terminal and type in:
 `npm install katina`
 
 ## Usage
@@ -29,7 +31,7 @@ k.getReviewsFor(app_id, country_id,
 
 * In order to find your app's id:
 
-- Login into your iTunesConnect account [here](http://itunesconnect.apple.com/)
-- Click on "Manage your Applications"
-- Look for the application that you're trying to find the apple id for, then click on the link App Details for that application.
-- The page will now list details of your application, next to where is says Apple ID should be a number that looks like "319597415." That is your application's Apple ID.
+	1. Login into your iTunesConnect account [here](http://itunesconnect.apple.com/)
+	2. Click on "Manage your Applications"
+	3. Look for the application that you're trying to find the apple id for, then click on the link App Details for that application.
+	4. The page will now list details of your application, next to where is says Apple ID should be a number that looks like "319597415." That is your application's Apple ID.
