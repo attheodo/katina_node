@@ -3,12 +3,21 @@
   "name": "katina",
   "description": "Apple App Store Review scraper for Node.js",
   "version": "0.0.1",
+  "keywords": [
+      "Apple",
+      "App Store",
+      "reviews",
+      "scraping",
+      "parsing"
+    ],
   "homepage": "http://github.com/attheodo/katina_node",
   "repository": {
     "type": "git",
     "url": "git://github.com/attheodo/katina_node.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "xml2json": ""
+    },
   "devDependencies": {},
   "optionalDependencies": {},
   "engines": {

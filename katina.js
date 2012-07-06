@@ -274,6 +274,3 @@ var parseReviews = function(reviews){
     return page_reviews;
 
 }
-
-
-//getReviewsFor(289923007, 143441, function(err,results){console.dir(results)});
