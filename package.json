@@ -1,23 +1,15 @@
 {
-  "author": "Athanasios \"attheodo\" Theodoridis <at@atworks.gr> (http://attheo.do)",
+  "author": "Thanos \"attheodo\" Theodoridis <at@atworks.gr> (http://attheo.do)",
   "name": "katina",
-  "description": "Apple App Store Review scraper for Node.js",
-  "version": "0.0.2",
-  "keywords": [
-      "Apple",
-      "App Store",
-      "reviews",
-      "scraping",
-      "parsing"
-    ],
+  "description": "Quick and dirty module to scrape app reviews from the App Store",
+  "version": "0.0.1",
   "homepage": "http://github.com/attheodo/katina_node",
   "repository": {
     "type": "git",
     "url": "git://github.com/attheodo/katina_node.git"
   },
-  "dependencies": {
-    "xml2json": ""
-    },
+  "main": "lib/katina.js",
+  "dependencies": { "xml2json":""},
   "devDependencies": {},
   "optionalDependencies": {},
   "engines": {
