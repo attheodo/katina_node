@@ -3,9 +3,6 @@ var   http = require('http'),
 		fs = require('fs'),
 		parser = require('xml2json');
 
-
-var app_reviews = [];
-
 APPSTORE_CODES = {
 	'Argentina':          143505,
 	'Australia':          143460,
@@ -86,7 +83,38 @@ APPSTORE_CODES = {
 	'Uruguay':            143514
 };
 
-var scrapeReviews = function(app_id, country_id, page_num) {
+var getReviewsFor = function(app_id, country_id, callback) {
+  
+	var app_reviews = [];
+
+	function next(page_num) {
+    
+	    scrapeReviews(app_id, country_id, page_num, function (err, reviews) {
+	    
+			if(err) {
+				return callback(err, null);
+			}
+				
+			var r = parseReviews(reviews);
+
+			if(r == null) {
+				return callback(null, app_reviews);
+			}
+
+			app_reviews.push(r);
+
+			next(++page_num);
+	    
+	    });
+ 
+  }
+
+   next(0);
+}
+
+exports.getReviewsFor = getReviewsFor;
+
+var scrapeReviews = function(app_id, country_id, page_num, callback) {
 
 	var reviews = '';
 
@@ -99,7 +127,8 @@ var scrapeReviews = function(app_id, country_id, page_num) {
 
 	};
 
-	var request_path = '/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=' + app_id + '&pageNumber=' + page_num + '&sortOrdering=4&onlyLatestVersion=false&type=Purple+Software';
+	var request_path = '/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=' + app_id + '&pageNumber=' 
+						+ page_num + '&sortOrdering=4&onlyLatestVersion=false&type=Purple+Software';
 
 	var request_options = {
 		
@@ -111,6 +140,7 @@ var scrapeReviews = function(app_id, country_id, page_num) {
 
 	};
 
+	// TODO: use 'request'
 	// make the request
 	var req = http.request(request_options, 
 		
@@ -128,107 +158,121 @@ var scrapeReviews = function(app_id, country_id, page_num) {
 
 			// error
 			res.on('error', function(e) {
-  				console.log('Error: ' + e.message);
+  				
+  				callback(e,null);
+			
 			});	
 
 			// response received
 			res.on('end',
 				function(){ 
-					parseReviews(reviews); 
+					
+					callback(null,reviews);
 
 				}
 			);
-
-
 		}
 	
 	);
 
 	req.end();
 
-	
 }
 
 var parseReviews = function(reviews){
 	
-	fs.readFile(__dirname + '/reviews.xml', function(err, data) {
-    
-    	var reviews_data = parser.toJson(data,{object: true});
+	var reviews_data = parser.toJson(reviews,{object: true});
 
-    	var num_of_reviews = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']['VBoxView'][0]['VBoxView']['VBoxView'].length;
+	try {
 
-    	for(var i=0; i < num_of_reviews; i+=1){
+		var num_of_reviews = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']
+									['VBoxView'][0]['VBoxView']['VBoxView'].length;
 
-	    	var review = {};
+		var page_reviews = [];
+	
+	} catch (err) {
+		
+		return null;
+	}
+	
 
-	    	// author
-	    	try {
-	    	
-	    		var review_author = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']['VBoxView'][0]['VBoxView']['VBoxView'][i]['HBoxView'][1]['TextView']['SetFontStyle']['GotoURL']['b']; 
-	    		review['author'] = review_author;
+	for(var i=0; i < num_of_reviews; i+=1){
 
-	    	} 
-	    	catch(err){
+    	var review = {};
 
-	    		review['author'] = undefined;
-	    	
-	    	}
+    	// author
+    	try {
+    	
+    		var review_author = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']
+    							['VBoxView'][0]['VBoxView']['VBoxView'][i]['HBoxView'][1]['TextView']['SetFontStyle']['GotoURL']['b']; 
+    		review['author'] = review_author;
 
-	    	
-	    	// review body
-	    	try {
-	    	
-	    		var review_body = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']['VBoxView'][0]['VBoxView']['VBoxView'][i]['TextView']['SetFontStyle']['$t'];
-	    		review['review'] = review_body;
+    	} 
+    	catch(err){
 
-	    	} catch(err) {
-				
-				review['review'] = undefined;
-	    	
-	    	}
-	    	
-			// application version
-			try {
+    		review['author'] = undefined;
+    	
+    	}
 
-	    		var review_appVersion = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']['VBoxView'][0]['VBoxView']['VBoxView'][i]['HBoxView'][1]['TextView']['SetFontStyle']['$t'];
-	    		review['version'] = review_appVersion;
+    	// review body
+    	try {
+    	
+    		var review_body = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']['VBoxView'][0]
+    							['VBoxView']['VBoxView'][i]['TextView']['SetFontStyle']['$t'];
+    		review['review'] = review_body;
 
-	    	} catch (err) {
-
-	    		review['version'] = undefined;
-	    	
-	    	}
-	    	
-
-	    	// review title
-	    	try {
-
-	    		var review_title = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']['VBoxView'][0]['VBoxView']['VBoxView'][i]['HBoxView'][0]['TextView']['SetFontStyle']['b'];
-				review['title'] = review_title;
-
-			} catch (err) {
-				review['title'] = undefined;
-			}
-
-	    	
-			// review rating
-			try {
-
-				var review_rating = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']['VBoxView'][0]['VBoxView']['VBoxView'][i]['HBoxView'][0]['HBoxView']['HBoxView'][0]['alt'];
-				review['rating'] = review_rating;				
-
-			} catch (err) {
-
-				review['rating'] = undefined;
+    	} catch(err) {
 			
-			}
+			review['review'] = undefined;
+    	
+    	}
+    	
+		// application version
+		try {
 
-	    	console.dir(review);
+    		var review_appVersion = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']['VBoxView'][0]
+    									['VBoxView']['VBoxView'][i]['HBoxView'][1]['TextView']['SetFontStyle']['$t'];
+    		review['version'] = review_appVersion.split(' ')[1];
+
+    	} catch (err) {
+
+    		review['version'] = undefined;
+    	
     	}
     	
 
-    });
+    	// review title
+    	try {
+
+    		var review_title = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']['VBoxView'][0]
+    							['VBoxView']['VBoxView'][i]['HBoxView'][0]['TextView']['SetFontStyle']['b'];
+			review['title'] = review_title;
+
+		} catch (err) {
+			review['title'] = undefined;
+		}
+
+		// review rating
+		try {
+
+			var review_rating = reviews_data['Document']['View']['ScrollView']['VBoxView']['View']['MatrixView']['VBoxView'][0]
+									['VBoxView']['VBoxView'][i]['HBoxView'][0]['HBoxView']['HBoxView'][0]['alt'];
+			review['rating'] = parseInt(review_rating.split(' ')[0],10);				
+
+		} catch (err) {
+
+			review['rating'] = undefined;
+		
+		}
+
+    	page_reviews.push(review);
+
+
+    }
+
+    return page_reviews;
+
 }
 
-//scrapeReviews(289923007,143441,0);
-parseReviews();
+
+// getReviewsFor(289923007, 143441, function(err,results){console.dir(results)});
