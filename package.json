@@ -2,7 +2,7 @@
   "author": "Athanasios \"attheodo\" Theodoridis <at@atworks.gr> (http://attheo.do)",
   "name": "katina",
   "description": "Apple App Store Review scraper for Node.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "keywords": [
       "Apple",
       "App Store",
