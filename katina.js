@@ -3,7 +3,7 @@ var   http = require('http'),
 		fs = require('fs'),
 		parser = require('xml2json');
 
-APPSTORE_CODES = {
+exports.APPSTORE_CODES = {
 	'Argentina':          143505,
 	'Australia':          143460,
 	'Belgium':            143446,
@@ -83,6 +83,7 @@ APPSTORE_CODES = {
 	'Uruguay':            143514
 };
 
+// This is the exported function
 var getReviewsFor = function(app_id, country_id, callback) {
   
 	var app_reviews = [];
@@ -107,9 +108,9 @@ var getReviewsFor = function(app_id, country_id, callback) {
 	    
 	    });
  
-  }
-
-   next(0);
+  	}
+  	
+  	next(0);
 }
 
 exports.getReviewsFor = getReviewsFor;
@@ -275,4 +276,4 @@ var parseReviews = function(reviews){
 }
 
 
-// getReviewsFor(289923007, 143441, function(err,results){console.dir(results)});
+//getReviewsFor(289923007, 143441, function(err,results){console.dir(results)});
