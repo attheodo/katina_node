@@ -20,6 +20,7 @@ var country_id = 143441;    // The App Store id for the country you're intereste
 
 k.getReviewsFor(app_id, country_id, 
 	
+	// callback
 	function(err,reviews){
 	
 		console.dir(reviews)
