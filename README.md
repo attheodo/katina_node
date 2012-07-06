@@ -15,7 +15,7 @@ var k = require('katina');
 // list all app store country ids
 console.dir(k.APPSTORE_CODES);
 
-var app_id     = 284882215; // Your app's id here. This one is facebook's.
+var app_id     = 524634435; // Your app's id here. This one is for the Steremood app.
 var country_id = 143441;    // The App Store id for the country you're interested in.  
 
 k.getReviewsFor(app_id, country_id, 
